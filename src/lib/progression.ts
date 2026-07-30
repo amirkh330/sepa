@@ -24,9 +24,9 @@ export function normalizeProgress(input: unknown): GameProgress {
   // unique + sorted
   const uniquePassed = Array.from(new Set(passedStages)).sort((a, b) => a - b);
 
-  const level = typeof obj.level === 'number' && Number.isInteger(obj.level) && obj.level >= 0
-    ? obj.level
-    : uniquePassed.length;
+  // const level = typeof obj.level === 'number' && Number.isInteger(obj.level) && obj.level >= 0
+  //   ? obj.level
+  //   : uniquePassed.length;
 
   const computedLevel = uniquePassed.length; // source of truth
   const safeLevel = Math.max(0, Math.min(STAGE_COUNT, computedLevel));
