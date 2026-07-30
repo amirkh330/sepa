@@ -192,10 +192,10 @@ export const StagePage: React.FC = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }} dir="rtl">
       {/* هدر مرحله */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 4 }}>
         <Button
           variant="text"
-          startIcon={<ArrowBackIcon sx={{ transform: 'rotate(180deg)' }} />}
+          startIcon={<ArrowBackIcon sx={{ transform: 'rotate(180deg)',mx:1 }} />}
           onClick={() => navigate(ROUTES.home)}
           color="inherit"
         >

@@ -127,7 +127,7 @@ export const ResultPage: React.FC = () => {
               variant="contained"
               color="primary"
               size="large"
-              startIcon={<ReplayIcon />}
+              startIcon={<ReplayIcon sx={{mx:1}}/>}
               onClick={handleRetry}
               fullWidth
               sx={{ py: 1.5, fontWeight: 'bold' }}
@@ -139,7 +139,7 @@ export const ResultPage: React.FC = () => {
           <Button
             variant="outlined"
             color="inherit"
-            startIcon={<HomeIcon />}
+            startIcon={<HomeIcon sx={{mx:1}}/>}
             onClick={() => navigate(ROUTES.home)}
             fullWidth
             sx={{ py: 1 }}
