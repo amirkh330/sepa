@@ -6,7 +6,7 @@ export interface StageDefinition {
   questionIds: string[];
 }
 
-export type StageResultStatus = 'passed' | 'failed';
+export type StageResultStatus = "passed" | "failed";
 
 export interface StageResult {
   stageNumber: number;

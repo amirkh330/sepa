@@ -6,8 +6,9 @@ export interface Question {
   stageNumber: number;
   difficulty: Difficulty;
   text: string;
-  image?: string;
   optionType: QuestionOptionCount;
   options: string[];
   correctAnswer: string;
+  imageUrl?: string; // فیلد جدید برای تصویر سوال
+
 }

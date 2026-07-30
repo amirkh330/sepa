@@ -1,16 +1,25 @@
-import React from 'react';
-import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { Container, Paper, Typography, Box, Button } from '@mui/material';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import CancelIcon from '@mui/icons-material/Cancel';
-import HomeIcon from '@mui/icons-material/Home';
-import ReplayIcon from '@mui/icons-material/Replay';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { ROUTES } from '../../config/routes';
+import React, { useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Paper,
+  Divider,
+} from "@mui/material";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ReplayIcon from "@mui/icons-material/Replay";
+import HomeIcon from "@mui/icons-material/Home";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-interface ResultState {
-  success: boolean;
-  reason?: 'WRONG_ANSWER' | 'TIMEOUT';
+import { useGameProgress } from "../../hooks/useGameProgress";
+import { ROUTES } from "../../config/routes";
+
+interface LocationState {
+  success?: boolean;
+  reason?: "WRONG_ANSWER" | "TIMEOUT";
   failedAtQuestion?: number;
 }
 
@@ -20,95 +29,122 @@ export const ResultPage: React.FC = () => {
   const location = useLocation();
   const stageId = Number(id);
 
-  const state = location.state as ResultState | undefined;
+  const { rank, level, markStagePassed, isStagePassed } = useGameProgress();
+  const state = (location.state as LocationState) || {};
+  const { success = false, reason, failedAtQuestion } = state;
 
-  // اگر بصورت دستی و بدون استیت وضعیت وارد صفحه شده باشد، به خانه بازگردانده می‌شود.
-  if (!state || isNaN(stageId)) {
-    return <Navigate to={ROUTES.home} replace />;
-  }
+  const handleNextStage = () => {
+    navigate(`/stage/${stageId + 1}`);
+  };
 
-  const { success, reason, failedAtQuestion } = state;
+  const handleRetry = () => {
+    navigate(`/stage/${stageId}`);
+  };
+
+  useEffect(() => {
+    if (success && !isStagePassed(stageId)) {
+      markStagePassed(stageId);
+    }
+  }, [success, stageId, isStagePassed, markStagePassed]);
 
   return (
     <Container maxWidth="sm" sx={{ py: 6 }}>
       <Paper
         elevation={4}
         sx={{
-          p: 5,
+          p: 4,
           borderRadius: 3,
-          textAlign: 'center',
-          border: success ? '2px solid #2e7d32' : '2px solid #d32f2f',
+          textAlign: "center",
+          bgcolor: "background.paper",
         }}
       >
         {success ? (
-          // سناریو موفقیت
           <Box>
-            <CheckCircleOutlineIcon color="success" sx={{ fontSize: 80, mb: 2 }} />
-            <Typography variant="h4" fontWeight="bold" color="success.main" gutterBottom>
+            <CheckCircleOutlineIcon
+              color="success"
+              sx={{ fontSize: 80, mb: 2 }}
+            />
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              color="success.main"
+              gutterBottom
+            >
               Mission Accomplished!
             </Typography>
-            <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-              Congratulations! You have successfully passed Stage {stageId}. Your rank and progression have been updated.
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              You successfully cleared Stage {stageId} and secured the
+              perimeter.
             </Typography>
           </Box>
         ) : (
-          // سناریو شکست
           <Box>
             <CancelIcon color="error" sx={{ fontSize: 80, mb: 2 }} />
-            <Typography variant="h4" fontWeight="bold" color="error.main" gutterBottom>
-              Mission Failed!
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              color="error.main"
+              gutterBottom
+            >
+              Mission Failed
             </Typography>
-            <Typography variant="body1" sx={{ color: 'text.secondary', mb: 2 }}>
-              {reason === 'TIMEOUT'
-                ? 'Time ran out before you could complete the mission.'
-                : `You selected the wrong answer on question number ${failedAtQuestion}.`}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'error.main', fontWeight: 'bold', mb: 4 }}>
-              Remember: In this operation, failure results in immediate discharge!
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              {reason === "TIMEOUT"
+                ? "Time ran out! You must think faster under pressure."
+                : `Incorrect response at Question ${failedAtQuestion || 1}.`}
             </Typography>
           </Box>
         )}
 
-        {/* دکمه‌های ناوبری و هدایت */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Divider sx={{ my: 3 }} />
+
+        {/* بخش نمایش رتبه و سطح کاربر */}
+        <Box sx={{ mb: 4, bgcolor: "action.selected", p: 2, borderRadius: 2 }}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Current Agent Status
+          </Typography>
+          <Typography variant="h6" fontWeight="bold" sx={{ mt: 0.5 }}>
+            Level {level} — Rank: {rank}
+          </Typography>
+        </Box>
+
+        {/* دکمه‌های ناوبری و اکشن‌ها */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {success ? (
-            // اگر برنده شد، دکمه رفتن به مرحله بعدی در صورت وجود
-            stageId < 20 ? (
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                startIcon={<PlayArrowIcon />}
-                onClick={() => navigate(ROUTES.stage(stageId + 1))}
-              >
-                Proceed to Stage {stageId + 1}
-              </Button>
-            ) : (
-              <Typography variant="h6" color="primary.main" fontWeight="bold" sx={{ mb: 2 }}>
-                🎖️ Master of the Battlefield! You have beaten all stages!
-              </Typography>
-            )
-          ) : (
-            // اگر باخت، دکمه تلاش مجدد برای همان مرحله
             <Button
               variant="contained"
-              color="error"
+              color="success"
+              size="large"
+              endIcon={<ArrowForwardIcon />}
+              onClick={handleNextStage}
+              fullWidth
+              sx={{ py: 1.5, fontWeight: "bold" }}
+            >
+              Proceed to Next Stage
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              color="primary"
               size="large"
               startIcon={<ReplayIcon />}
-              onClick={() => navigate(ROUTES.stage(stageId))}
+              onClick={handleRetry}
+              fullWidth
+              sx={{ py: 1.5, fontWeight: "bold" }}
             >
-              Try Again
+              Retry Mission
             </Button>
           )}
 
-          {/* بازگشت به داشبورد */}
           <Button
             variant="outlined"
             color="inherit"
             startIcon={<HomeIcon />}
             onClick={() => navigate(ROUTES.home)}
+            fullWidth
+            sx={{ py: 1 }}
           >
-            Return to Dashboard
+            Return to Command Center (Home)
           </Button>
         </Box>
       </Paper>
