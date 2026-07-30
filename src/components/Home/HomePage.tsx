@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -8,6 +8,11 @@ import {
   Grid2 as Grid,
   Button,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
@@ -29,10 +34,18 @@ export const HomePage: React.FC = () => {
     canPlayStage,
   } = useGameProgress();
 
+  // وضعیت برای نمایش دیالوگ تایید حذف پیشرفت
+  const [openResetDialog, setOpenResetDialog] = useState(false);
+
   const handleLogout = () => {
     clearProfile();
     resetProgress();
-    // navigate(ROUTES.welcome);
+    navigate(ROUTES.welcome);
+  };
+
+  const handleConfirmReset = () => {
+    resetProgress();
+    setOpenResetDialog(false);
   };
 
   const handleStageClick = (stageNumber: number) => {
@@ -40,7 +53,7 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4, direction: "rtl" }}>
       <Paper
         elevation={3}
         sx={{
@@ -54,13 +67,13 @@ export const HomePage: React.FC = () => {
           gap: 2,
         }}
       >
-        <Box>
+        <Box sx={{ textAlign: "right" }}>
           <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Soldier: {fullName || "Unknown"}
+            سرباز: {fullName || "ناشناس"}
           </Typography>
           <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap", mt: 1 }}>
             <Typography variant="body1" color="text.secondary">
-              Current Rank:{" "}
+              درجه فعلی:{" "}
               <Box
                 component="span"
                 sx={{ color: "primary.main", fontWeight: "bold" }}
@@ -69,7 +82,7 @@ export const HomePage: React.FC = () => {
               </Box>
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Level:{" "}
+              مرحله:{" "}
               <Box
                 component="span"
                 sx={{ color: "secondary.main", fontWeight: "bold" }}
@@ -80,34 +93,34 @@ export const HomePage: React.FC = () => {
           </Box>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 1.5 }}>
+        <Box sx={{ display: "flex", gap: 1.5, flexDirection: "row-reverse" }}>
           <Button
             variant="outlined"
             color="warning"
-            startIcon={<RestartAltIcon />}
-            onClick={resetProgress}
+            startIcon={<RestartAltIcon sx={{ ml: 1, mr: 0 }} />} // جابجایی آیکون برای فارسی
+            onClick={() => setOpenResetDialog(true)}
             size="small"
           >
-            Reset Progress
+            پاکسازی پیشرفت
           </Button>
           <Button
             variant="outlined"
             color="error"
-            startIcon={<ExitToAppIcon />}
+            startIcon={<ExitToAppIcon sx={{ ml: 1, mr: 0 }} />}
             onClick={handleLogout}
             size="small"
           >
-            Logout
+            خروج
           </Button>
         </Box>
       </Paper>
 
-      <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
-        Missions Grid
+      <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ mb: 3, textAlign: "right" }}>
+        نقشه مأموریت‌ها
       </Typography>
       <Divider sx={{ mb: 4 }} />
 
-      <Grid container spacing={3}>
+      <Grid container spacing={3} sx={{ direction: "rtl" }}>
         {STAGES.map((stage) => {
           const sNum = stage.stageNumber;
           const unlocked = isStageUnlocked(sNum);
@@ -128,6 +141,28 @@ export const HomePage: React.FC = () => {
           );
         })}
       </Grid>
+
+      {/* دیالوگ تایید برای ریست کردن بازی */}
+      <Dialog
+        open={openResetDialog}
+        onClose={() => setOpenResetDialog(false)}
+        dir="rtl"
+      >
+        <DialogTitle>{"آیا مطمئن هستید؟"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            با تایید این گزینه، تمام مراحل طی شده و امتیازات شما پاک خواهد شد و قابل بازیابی نیست.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, justifyContent: 'flex-start' }}>
+          <Button onClick={() => setOpenResetDialog(false)} color="inherit">
+            انصراف
+          </Button>
+          <Button onClick={handleConfirmReset} color="warning" variant="contained" autoFocus>
+            بله، پاکسازی شود
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

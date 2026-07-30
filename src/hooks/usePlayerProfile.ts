@@ -11,16 +11,23 @@ function isValidProfile(x: unknown): x is PlayerProfile {
   return typeof obj.firstName === 'string' && obj.firstName.trim().length > 0
     && typeof obj.lastName === 'string' && obj.lastName.trim().length > 0;
 }
+// src/hooks/usePlayerProfile.ts
 
 export function usePlayerProfile() {
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
+  // ۱. اضافه کردن وضعیت hydration
+  const [isHydrated, setIsHydrated] = useState(false); 
 
   useEffect(() => {
     const stored = readJson<unknown>(KEY);
     setProfile(isValidProfile(stored) ? stored : null);
+    
+    // ۲. بعد از خواندن، وضعیت را true کن
+    setIsHydrated(true); 
   }, []);
 
   const saveProfile = useCallback((next: PlayerProfile) => {
+    // ... (بقیه کدها دست نخورده باقی می‌ماند)
     const clean: PlayerProfile = {
       firstName: next.firstName.trim(),
       lastName: next.lastName.trim(),
@@ -39,5 +46,7 @@ export function usePlayerProfile() {
     return `${profile.firstName} ${profile.lastName}`.trim();
   }, [profile]);
 
-  return { profile, fullName, saveProfile, clearProfile };
+  // ۳. اضافه کردن isHydrated به خروجی هوک
+  return { profile, isHydrated, fullName, saveProfile, clearProfile };
 }
+

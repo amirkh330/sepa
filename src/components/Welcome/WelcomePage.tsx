@@ -16,15 +16,23 @@ import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import { usePlayerProfile } from '../../hooks/usePlayerProfile';
 import { ROUTES } from '../../config/routes';
 
-
 interface WelcomeFormInputs {
   firstName: string;
   lastName: string;
 }
 
-const schema = yup.object().shape({
-  firstName: yup.string().trim().required('First name is required').min(2, 'Too short'),
-  lastName: yup.string().trim().required('Last name is required').min(2, 'Too short'),
+// اعتبارسنجی فارسی
+const schema = yup.object({
+  firstName: yup
+    .string()
+    .trim()
+    .required('نام را وارد کنید.')
+    .min(2, 'نام باید حداقل ۲ کاراکتر باشد.'),
+  lastName: yup
+    .string()
+    .trim()
+    .required('نام خانوادگی را وارد کنید.')
+    .min(2, 'نام خانوادگی باید حداقل ۲ کاراکتر باشد.'),
 });
 
 export const WelcomePage: React.FC = () => {
@@ -48,9 +56,6 @@ export const WelcomePage: React.FC = () => {
     navigate(ROUTES.home);
   };
 
-
-
-  // if(profile?.firstName) return navigate(ROUTES.home);
   return (
     <Container maxWidth="sm">
       <Box
@@ -69,8 +74,9 @@ export const WelcomePage: React.FC = () => {
             p: 4,
             width: '100%',
             borderRadius: 3,
-            textAlign: 'center',
+            textAlign: 'right', // راست‌چین کردن محتوای داخلی
             background: 'background.paper',
+            dir: 'rtl' // پشتیبانی RTL برای کل پیپر
           }}
         >
           <Avatar
@@ -84,20 +90,20 @@ export const WelcomePage: React.FC = () => {
             <SportsEsportsIcon fontSize="large" />
           </Avatar>
 
-          <Typography component="h1" variant="h4" gutterBottom fontWeight="bold">
-            Welcome to PWA Quiz Game
+          <Typography component="h1" variant="h4" gutterBottom fontWeight="bold" textAlign="center">
+            به بازی درجه‌بندی نظامی خوش آمدید
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-            Enter your details to start your journey and unlock your military ranks.
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }} textAlign="center">
+            برای شروع بازی، نام و نام خانوادگی خود را وارد کنید.
           </Typography>
 
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate dir="rtl">
             <TextField
               margin="normal"
               required
               fullWidth
               id="firstName"
-              label="First Name"
+              label="نام"
               autoComplete="given-name"
               autoFocus
               {...register('firstName')}
@@ -109,7 +115,7 @@ export const WelcomePage: React.FC = () => {
               required
               fullWidth
               id="lastName"
-              label="Last Name"
+              label="نام خانوادگی"
               autoComplete="family-name"
               {...register('lastName')}
               error={!!errors.lastName}
@@ -123,7 +129,7 @@ export const WelcomePage: React.FC = () => {
               size="large"
               sx={{ mt: 4, py: 1.5, fontWeight: 'bold', borderRadius: 2 }}
             >
-              Start Game
+              شروع بازی
             </Button>
           </Box>
         </Paper>

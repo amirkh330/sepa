@@ -14,10 +14,11 @@ interface StageCardProps {
   onClick: () => void;
 }
 
+// فارسی‌سازی سطوح سختی و رنگ‌بندی آن‌ها
 const difficultyMeta: Record<Difficulty, { chipBg: string; chipText: string; label: string }> = {
-  easy: { chipBg: '#e8f5e9', chipText: '#2e7d32', label: 'Easy' },
-  medium: { chipBg: '#fff3e0', chipText: '#ef6c00', label: 'Medium' },
-  hard: { chipBg: '#ffebee', chipText: '#c62828', label: 'Hard' },
+  easy: { chipBg: '#e8f5e9', chipText: '#2e7d32', label: 'آسان' },
+  medium: { chipBg: '#fff3e0', chipText: '#ef6c00', label: 'متوسط' },
+  hard: { chipBg: '#ffebee', chipText: '#c62828', label: 'سخت' },
 };
 
 type StageUiState = 'passed' | 'locked' | 'playable';
@@ -64,6 +65,7 @@ export const StageCard: React.FC<StageCardProps> = (props) => {
         overflow: 'hidden',
         bgcolor: 'background.paper',
         transition: 'transform 120ms ease, box-shadow 120ms ease',
+        direction: 'rtl', // تضمین جهت‌دهی راست به چپ در کارت
         ...(clickable
           ? {
               '&:hover': {
@@ -83,41 +85,43 @@ export const StageCard: React.FC<StageCardProps> = (props) => {
           alignItems: 'stretch',
         }}
       >
-        <CardContent sx={{ height: '100%' }}>
-          {/* بالا: چیپ سختی + شماره */}
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 2,
-            }}
-          >
-            <Chip
-              label={meta.label}
-              size="small"
+        <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <Box>
+            {/* بالا: چیپ سختی + شماره مرحله */}
+            <Box
               sx={{
-                bgcolor: meta.chipBg,
-                color: meta.chipText,
-                fontWeight: 700,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mb: 2,
               }}
-            />
-            <Typography variant="caption" color="text.secondary">
-              Stage {stageNumber}
+            >
+              <Chip
+                label={meta.label}
+                size="small"
+                sx={{
+                  bgcolor: meta.chipBg,
+                  color: meta.chipText,
+                  fontWeight: 700,
+                }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                مرحله {stageNumber}
+              </Typography>
+            </Box>
+
+            <Typography variant="h6" fontWeight={800} gutterBottom sx={{ textAlign: 'right' }}>
+              مأموریت {stageNumber}
             </Typography>
           </Box>
 
-          <Typography variant="h6" fontWeight={800} gutterBottom>
-            Mission {stageNumber}
-          </Typography>
-
-          {/* پایین: وضعیت */}
-          <Box sx={{ display: 'flex', alignItems: 'center', mt: 3, gap: 1 }}>
+          {/* پایین: وضعیت مرحله */}
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 3, gap: 1, justifyContent: 'flex-start' }}>
             {uiState === 'passed' && (
               <>
                 <CheckCircleIcon color="success" fontSize="small" />
                 <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 600 }}>
-                  Passed
+                  قبول شده
                 </Typography>
               </>
             )}
@@ -126,16 +130,16 @@ export const StageCard: React.FC<StageCardProps> = (props) => {
               <>
                 <LockIcon color="disabled" fontSize="small" />
                 <Typography variant="body2" color="text.disabled">
-                  {isUnlocked ? 'Not Available' : 'Locked'}
+                  {isUnlocked ? 'در دسترس نیست' : 'قفل شده'}
                 </Typography>
               </>
             )}
 
             {uiState === 'playable' && (
               <>
-                <PlayArrowIcon color="primary" fontSize="small" />
+                <PlayArrowIcon color="primary" fontSize="small" sx={{ transform: 'scaleX(-1)' }} /> {/* قرینه‌سازی فلش برای جهت RTL */}
                 <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 800 }}>
-                  Play Now
+                  شروع بازی
                 </Typography>
               </>
             )}
